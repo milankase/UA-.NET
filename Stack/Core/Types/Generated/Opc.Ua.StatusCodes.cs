@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2013 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2016 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  *
@@ -150,59 +150,64 @@ namespace Opc.Ua
         public const uint BadSecurityChecksFailed = 0x80130000;
 
         /// <summary>
-        /// The Certificate has expired or is not yet valid.
+        /// The certificate has expired or is not yet valid.
         /// </summary>
         public const uint BadCertificateTimeInvalid = 0x80140000;
 
         /// <summary>
-        /// An Issuer Certificate has expired or is not yet valid.
+        /// An issuer certificate has expired or is not yet valid.
         /// </summary>
         public const uint BadCertificateIssuerTimeInvalid = 0x80150000;
 
         /// <summary>
-        /// The HostName used to connect to a Server does not match a HostName in the Certificate.
+        /// The HostName used to connect to a server does not match a HostName in the certificate.
         /// </summary>
         public const uint BadCertificateHostNameInvalid = 0x80160000;
 
         /// <summary>
-        /// The URI specified in the ApplicationDescription does not match the URI in the Certificate.
+        /// The URI specified in the ApplicationDescription does not match the URI in the certificate.
         /// </summary>
         public const uint BadCertificateUriInvalid = 0x80170000;
 
         /// <summary>
-        /// The Certificate may not be used for the requested operation.
+        /// The certificate may not be used for the requested operation.
         /// </summary>
         public const uint BadCertificateUseNotAllowed = 0x80180000;
 
         /// <summary>
-        /// The Issuer Certificate may not be used for the requested operation.
+        /// The issuer certificate may not be used for the requested operation.
         /// </summary>
         public const uint BadCertificateIssuerUseNotAllowed = 0x80190000;
 
         /// <summary>
-        /// The Certificate is not trusted.
+        /// The certificate is not trusted.
         /// </summary>
         public const uint BadCertificateUntrusted = 0x801A0000;
 
         /// <summary>
-        /// It was not possible to determine if the Certificate has been revoked.
+        /// It was not possible to determine if the certificate has been revoked.
         /// </summary>
         public const uint BadCertificateRevocationUnknown = 0x801B0000;
 
         /// <summary>
-        /// It was not possible to determine if the Issuer Certificate has been revoked.
+        /// It was not possible to determine if the issuer certificate has been revoked.
         /// </summary>
         public const uint BadCertificateIssuerRevocationUnknown = 0x801C0000;
 
         /// <summary>
-        /// The Certificate has been revoked.
+        /// The certificate has been revoked.
         /// </summary>
         public const uint BadCertificateRevoked = 0x801D0000;
 
         /// <summary>
-        /// The Issuer Certificate has been revoked.
+        /// The issuer certificate has been revoked.
         /// </summary>
         public const uint BadCertificateIssuerRevoked = 0x801E0000;
+
+        /// <summary>
+        /// The certificate chain is incomplete.
+        /// </summary>
+        public const uint BadCertificateChainIncomplete = 0x810D0000;
 
         /// <summary>
         /// User does not have permission to perform the requested operation.
@@ -268,6 +273,26 @@ namespace Opc.Ua
         /// The request was cancelled by the client.
         /// </summary>
         public const uint BadRequestCancelledByClient = 0x802C0000;
+
+        /// <summary>
+        /// Too many arguments were provided.
+        /// </summary>
+        public const uint BadTooManyArguments = 0x80E50000;
+
+        /// <summary>
+        /// The server requires a license to operate in general or to perform a service or operation, but existing license is expired.
+        /// </summary>
+        public const uint BadLicenseExpired = 0x810E0000;
+
+        /// <summary>
+        /// The server has limits on number of allowed operations / objects, based on installed licenses, and these limits where exceeded.
+        /// </summary>
+        public const uint BadLicenseLimitsExceeded = 0x810F0000;
+
+        /// <summary>
+        /// The server does not have a license which is required to operate in general or to perform a service or operation.
+        /// </summary>
+        public const uint BadLicenseNotAvailable = 0x81100000;
 
         /// <summary>
         /// The subscription was transferred to another session.
@@ -490,12 +515,12 @@ namespace Opc.Ua
         public const uint BadRequestTypeInvalid = 0x80530000;
 
         /// <summary>
-        /// The security mode does not meet the requirements set by the Server.
+        /// The security mode does not meet the requirements set by the server.
         /// </summary>
         public const uint BadSecurityModeRejected = 0x80540000;
 
         /// <summary>
-        /// The security policy does not meet the requirements set by the Server.
+        /// The security policy does not meet the requirements set by the server.
         /// </summary>
         public const uint BadSecurityPolicyRejected = 0x80550000;
 
@@ -520,7 +545,7 @@ namespace Opc.Ua
         public const uint BadNoValidCertificates = 0x80590000;
 
         /// <summary>
-        /// The Server does not support changing the user identity assigned to the session.
+        /// The server does not support changing the user identity assigned to the session.
         /// </summary>
         public const uint BadIdentityChangeNotSupported = 0x80C60000;
 
@@ -675,6 +700,11 @@ namespace Opc.Ua
         public const uint BadMaxAgeInvalid = 0x80700000;
 
         /// <summary>
+        /// The operation is not permitted over the current secure channel.
+        /// </summary>
+        public const uint BadSecurityModeInsufficient = 0x80E60000;
+
+        /// <summary>
         /// The history details parameter is not valid.
         /// </summary>
         public const uint BadHistoryOperationInvalid = 0x80710000;
@@ -690,7 +720,7 @@ namespace Opc.Ua
         public const uint BadInvalidTimestampArgument = 0x80BD0000;
 
         /// <summary>
-        /// The server not does support writing the combination of value, status and timestamps provided.
+        /// The server does not support writing the combination of value, status and timestamps provided.
         /// </summary>
         public const uint BadWriteNotSupported = 0x80730000;
 
@@ -735,7 +765,7 @@ namespace Opc.Ua
         public const uint BadMessageNotAvailable = 0x807B0000;
 
         /// <summary>
-        /// The Client of the current Session does not support one or more Profiles that are necessary for the Subscription.
+        /// The client of the current session does not support one or more Profiles that are necessary for the subscription.
         /// </summary>
         public const uint BadInsufficientClientProfile = 0x807C0000;
 
@@ -775,7 +805,7 @@ namespace Opc.Ua
         public const uint BadTcpInternalError = 0x80820000;
 
         /// <summary>
-        /// The Server does not recognize the QueryString specified.
+        /// The server does not recognize the QueryString specified.
         /// </summary>
         public const uint BadTcpEndpointUrlInvalid = 0x80830000;
 
@@ -1033,6 +1063,46 @@ namespace Opc.Ua
         /// The request pecifies fields which are not valid for the EventType or cannot be saved by the historian.
         /// </summary>
         public const uint GoodDataIgnored = 0x00D90000;
+
+        /// <summary>
+        /// The request was rejected by the server because it did not meet the criteria set by the server.
+        /// </summary>
+        public const uint BadRequestNotAllowed = 0x80E40000;
+
+        /// <summary>
+        /// The value does not come from the real source and has been edited by the server.
+        /// </summary>
+        public const uint GoodEdited = 0x00DC0000;
+
+        /// <summary>
+        /// There was an error in execution of these post-actions.
+        /// </summary>
+        public const uint GoodPostActionFailed = 0x00DD0000;
+
+        /// <summary>
+        /// The related EngineeringUnit has been changed but the Variable Value is still provided based on the previous unit.
+        /// </summary>
+        public const uint UncertainDominantValueChanged = 0x40DE0000;
+
+        /// <summary>
+        /// A dependent value has been changed but the change has not been applied to the device.
+        /// </summary>
+        public const uint GoodDependentValueChanged = 0x00E00000;
+
+        /// <summary>
+        /// The related EngineeringUnit has been changed but this change has not been applied to the device. The Variable Value is still dependent on the previous unit but its status is currently Bad.
+        /// </summary>
+        public const uint BadDominantValueChanged = 0x80E10000;
+
+        /// <summary>
+        /// A dependent value has been changed but the change has not been applied to the device. The quality of the dominant variable is uncertain.
+        /// </summary>
+        public const uint UncertainDependentValueChanged = 0x40E20000;
+
+        /// <summary>
+        /// A dependent value has been changed but the change has not been applied to the device. The quality of the dominant variable is Bad.
+        /// </summary>
+        public const uint BadDependentValueChanged = 0x80E30000;
 
         /// <summary>
         /// The communication layer has raised an event.

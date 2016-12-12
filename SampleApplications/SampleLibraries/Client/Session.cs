@@ -1,5 +1,5 @@
 /* ========================================================================
- * Copyright (c) 2005-2013 The OPC Foundation, Inc. All rights reserved.
+ * Copyright (c) 2005-2016 The OPC Foundation, Inc. All rights reserved.
  *
  * OPC Foundation MIT License 1.00
  * 
@@ -809,7 +809,7 @@ namespace Opc.Ua.Client
             // create the session.
 			try
 			{
-				session.Open( sessionName, sessionTimeout, identity, preferredLocales );
+				session.Open( sessionName, sessionTimeout, identity, preferredLocales, checkDomain );
 			}
 			catch
 			{
@@ -1916,12 +1916,30 @@ namespace Opc.Ua.Client
         /// <param name="sessionTimeout">The session timeout.</param>
         /// <param name="identity">The user identity.</param>
         /// <param name="preferredLocales">The list of preferred locales.</param>
+        public void Open(
+            string sessionName,
+            uint sessionTimeout,
+            IUserIdentity identity,
+            IList<string> preferredLocales)
+        {
+            Open(sessionName, sessionTimeout, identity, preferredLocales, true);
+        }
+
+        /// <summary>
+        /// Establishes a session with the server.
+        /// </summary>
+        /// <param name="sessionName">The name to assign to the session.</param>
+        /// <param name="sessionTimeout">The session timeout.</param>
+        /// <param name="identity">The user identity.</param>
+        /// <param name="preferredLocales">The list of preferred locales.</param>
+        /// <param name="checkDomain">If set to <c>true</c> then the domain in the certificate must match the endpoint used.</param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         public void Open(
             string        sessionName,
             uint          sessionTimeout,
             IUserIdentity identity,
-            IList<string> preferredLocales)
+            IList<string> preferredLocales,
+            bool          checkDomain)
         {
             // check connection state.
             lock (SyncRoot)
@@ -1962,9 +1980,11 @@ namespace Opc.Ua.Client
             }
 
             bool requireEncryption = securityPolicyUri != SecurityPolicies.None;
+
             if (!requireEncryption)
             {
-                requireEncryption = identityPolicy.SecurityPolicyUri != SecurityPolicies.None;
+                requireEncryption = identityPolicy.SecurityPolicyUri != SecurityPolicies.None && 
+                    !String.IsNullOrEmpty(identityPolicy.SecurityPolicyUri);
             }
 
             // validate the server certificate.
@@ -1976,7 +1996,10 @@ namespace Opc.Ua.Client
                 serverCertificate = Utils.ParseCertificateBlob(certificateData);
                 m_configuration.CertificateValidator.Validate(serverCertificate);
 
-                CheckCertificateDomain(m_endpoint);
+                if(checkDomain)
+                {
+                    CheckCertificateDomain(m_endpoint);
+                }
 
                 //X509Certificate2Collection certificateChain = Utils.ParseCertificateChainBlob(certificateData);                
                 //if (certificateChain.Count > 0)
@@ -3944,7 +3967,7 @@ namespace Opc.Ua.Client
                 {
                     foreach (var acknowledgement in acknowledgementsToSend)
                     {
-                        if (!availableSequenceNumbers.Contains(acknowledgement.SequenceNumber))
+                        if (acknowledgement.SubscriptionId == subscriptionId && !availableSequenceNumbers.Contains(acknowledgement.SequenceNumber))
                         {
                             Utils.Trace("Sequence number={0} was not received in the available sequence numbers.", acknowledgement.SequenceNumber);
                         }

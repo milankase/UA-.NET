@@ -1,4 +1,4 @@
-/* Copyright (c) 1996-2015, OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2016, OPC Foundation. All rights reserved.
 
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
@@ -438,9 +438,14 @@ namespace Opc.Ua
             }
 
             // ensure configuration errors don't render the server inoperable.
-            if (maxRequestThreadCount < 100)
+            if (minRequestThreadCount < 1)
             {
-                maxRequestThreadCount = 100;
+                minRequestThreadCount = 1;
+            }
+
+            if (maxRequestThreadCount < minRequestThreadCount)
+            {
+                maxRequestThreadCount = minRequestThreadCount;
             }
 
             if (maxQueuedRequestCount < 100)
@@ -1768,34 +1773,42 @@ namespace Opc.Ua
             /// <param name="request">The request.</param>
             public void ScheduleIncomingRequest(IEndpointIncomingRequest request)
             {
+                bool tooManyOperations = false;
+
                 // queue the request.
                 lock (m_lock)   // i.e. Monitor.Enter(m_lock)
                 {
                     // check able to schedule requests.
                     if (m_stopped || m_queue.Count >= m_maxRequestCount)
                     {
-                        request.OperationCompleted(null, StatusCodes.BadTooManyOperations);
-                        return;
+                        tooManyOperations = true;
                     }
-
-                    m_queue.Enqueue(request);
-
-                    // wake up an idle thread to handle the request if there is one
-                    if (m_activeThreadCount < m_totalThreadCount)
+                    else
                     {
-                        Monitor.Pulse(m_lock);
-                    }
-                    // start a new thread to handle the request if none are idle and the pool is not full.
-                    else if (m_totalThreadCount < m_maxThreadCount)
-                    {
-                        Thread thread = new Thread(OnProcessRequestQueue);
-                        thread.IsBackground = true;
-                        thread.Start(null);
-                        m_totalThreadCount++;
-                        m_activeThreadCount++;  // new threads start in an active state
+                        m_queue.Enqueue(request);
 
-                        Utils.Trace("Thread created: " + Thread.CurrentThread.ManagedThreadId + ". Current thread count: " + m_totalThreadCount + ". Active thread count" + m_activeThreadCount);
+                        // wake up an idle thread to handle the request if there is one
+                        if (m_activeThreadCount < m_totalThreadCount)
+                        {
+                            Monitor.Pulse(m_lock);
+                        }
+                        // start a new thread to handle the request if none are idle and the pool is not full.
+                        else if (m_totalThreadCount < m_maxThreadCount)
+                        {
+                            Thread thread = new Thread(OnProcessRequestQueue);
+                            thread.IsBackground = true;
+                            thread.Start(null);
+                            m_totalThreadCount++;
+                            m_activeThreadCount++;  // new threads start in an active state
+
+                            Utils.Trace("Thread created: " + Thread.CurrentThread.ManagedThreadId + ". Current thread count: " + m_totalThreadCount + ". Active thread count" + m_activeThreadCount);
+                        }
                     }
+                }
+
+                if (tooManyOperations)
+                {
+                    request.OperationCompleted(null, StatusCodes.BadTooManyOperations);
                 }
             }
             #endregion

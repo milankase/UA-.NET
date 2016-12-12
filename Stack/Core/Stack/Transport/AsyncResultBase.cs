@@ -1,4 +1,4 @@
-/* Copyright (c) 1996-2015, OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2016, OPC Foundation. All rights reserved.
 
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
@@ -233,6 +233,20 @@ namespace Opc.Ua
                         {
                             // ignore 
                         }
+                    }
+                }
+
+                // release the wait event.
+                if (m_waitHandle != null)
+                {
+                    try
+                    {
+                        m_waitHandle.Close();
+                        m_waitHandle = null;
+                    }
+                    catch (Exception)
+                    {
+                        // ignore 
                     }
                 }
             }

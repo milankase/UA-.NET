@@ -1,4 +1,4 @@
-/* Copyright (c) 1996-2015, OPC Foundation. All rights reserved.
+/* Copyright (c) 1996-2016, OPC Foundation. All rights reserved.
 
    The source code in this file is covered under a dual-license scenario:
      - RCL: for OPC Foundation members in good-standing
@@ -995,14 +995,35 @@ namespace Opc.Ua
                     {
                         Int32Collection dimensions = ReadInt32Array(null);
 
-                        if (dimensions != null && dimensions.Count > 0)
+                        // check if ArrayDimensions are consistent with the ArrayLength.
+                        if (dimensions == null || dimensions.Count == 0)
                         {
-                            value = new Variant(new Matrix(array, builtInType, dimensions.ToArray()));
+                            throw new ServiceResultException(
+                                StatusCodes.BadDecodingError, 
+                                "ArrayDimensions not specified when ArrayDimensions encoding bit was set in Variant object.");
                         }
-                        else
+
+                        int[] dimensionsArray = dimensions.ToArray();
+                        int matrixLength = 1;
+
+                        for (int ii = 0; ii < dimensionsArray.Length; ii++)
                         {
-                            value = new Variant(new Matrix(array, builtInType));
+                            if (dimensionsArray[ii] == 0 && length >0)
+                            {
+                                throw new ServiceResultException(
+                                    StatusCodes.BadDecodingError,
+                                    Utils.Format("ArrayDimensions [{0}] is zero in Variant object.", ii)); 
+                            }
+
+                            matrixLength *= dimensionsArray[ii];
                         }
+
+                        if (matrixLength != length)
+                        {
+                            throw new ServiceResultException(StatusCodes.BadDecodingError, "ArrayDimensions does not match with the ArrayLength in Variant object.");
+                        }
+
+                        value = new Variant(new Matrix(array, builtInType, dimensions.ToArray()));
                     }
                     else
                     {
